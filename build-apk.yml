@@ -1,0 +1,122 @@
+name: Build HAKON NFC Helper APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle 9.6.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK 36
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Recreate HAKON NFC Helper source
+        shell: bash
+        run: |
+          mkdir -p project
+          cat > project.b64 <<'HAKON_PROJECT_B64'
+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
+HAKON_PROJECT_B64
+          base64 --decode project.b64 > project.zip
+          unzip -q project.zip -d project
+          echo "Project restored:"
+          find project -maxdepth 4 -type f | sort
+
+      - name: Build debug APK
+        shell: bash
+        run: |
+          cd project
+          gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Rename APK
+        shell: bash
+        run: |
+          cp project/app/build/outputs/apk/debug/app-debug.apk HAKON-NFC-Helper.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HAKON-NFC-Helper-APK
+          path: HAKON-NFC-Helper.apk
+          if-no-files-found: error
